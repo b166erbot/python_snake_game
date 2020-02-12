@@ -1,6 +1,6 @@
-from itertools import chain
+from itertools import chain, cycle
 from random import choice
-from typing import Any, Iterator, List, NoReturn
+from typing import Any, Iterator, List, Tuple, NoReturn
 
 from .objetos import Barreira, Grama
 
@@ -15,7 +15,8 @@ class Quadrados:
     def _construir(self, a: int, b: int, a2: int, b2: int) -> Iterator[Barreira]:
         colunas, linhas = range(a2 + 1, a + a2), range(b2 + 1, b + b2)
         chars = self._caracteres
-        # barreira esquerda, inferior, direita, superior. nesta mesma ordem
+        # cada map representa uma parte da parede do quadrado.
+        # barreira esquerda, inferior, direita e superior, nesta mesma ordem
         barreiras = [
             Barreira(b2, a2, self._tela, chars[2]),
             map(lambda x: Barreira(x, a2, self._tela, chars[0]), linhas),
@@ -57,9 +58,26 @@ class Gramado:
         self._inicio_y = inicio_y
         self._tela = tela
 
-    def criar(self) -> List[Grama]:
-        indices = [
-            (x, y) for x in range(self._inicio_x, self._x)
-            for y in range(self._inicio_y, self._y)
-        ]
+    def _indices(self, range_x: range, range_y: range) -> List[Tuple[int]]:
+        indices = [(x, y) for x in range_x for y in range_y]
+        return indices
+
+    def preenchido(self) -> List[Grama]:
+        range_x = range(self._inicio_x, self._x)
+        range_y = range(self._inicio_y, self._y)
+        indices = self._indices(range_x, range_y)
+        return list(map(lambda x: Grama(*x, self._tela), indices))
+
+    def espacado(self) -> List[Grama]:
+        range_x = range(self._inicio_x, self._x)
+        range_y = range(self._inicio_y, self._y, 2)
+        indices = self._indices(range_x, range_y)
+        return list(map(lambda x: Grama(*x, self._tela), indices))
+
+    def xadres(self) -> List[Grama]:
+        range_x = range(self._inicio_x, self._x)
+        range_y = range(self._inicio_y, self._y, 2)
+        range_y2 = range(self._inicio_y + 1, self._y - 1, 2)
+        ciclo_y = cycle([range_y, range_y2])
+        indices = [(x, y) for x in range_x for y in next(ciclo_y)]
         return list(map(lambda x: Grama(*x, self._tela), indices))

@@ -121,13 +121,6 @@ class Barreira(Tangivel):
         # python.alterar_character('☠')
 
 
-class Comida(Tangivel):
-    def efeito(self, python: Python, cabeca: Aneis) -> NoReturn:
-        """Método que adiciona um anel a cobra."""
-        python.adicionar_anel()
-        self._vida -= 1
-
-
 class Portal(Tangivel):
     def __init__(self, *args, **kwargs) -> NoReturn:
         super().__init__(*args, '⏣', cor = 'blue', **kwargs)
@@ -154,20 +147,35 @@ class Grama(Tangivel):
 class Retornavel(Tangivel):
     def __init__(self, *args, nova_posicao: FunctionType, **kwargs) -> NoReturn:
         super().__init__(*args, **kwargs)
-        # implemente aqui uma funcao onde este objeto aparece e desaparece.
-        self._consumivel = iter(range(250)[::-1])
+        self._nova_posicao = nova_posicao
+
+    def exibir(self) -> NoReturn:
+        self._tela.addstr(self._x, self._y, self._character, cor(self._cor))
+
+
+class Comida(Retornavel):
+    def efeito(self, python: Python, cabeca: Aneis) -> NoReturn:
+        """Método que adiciona um anel a cobra."""
+        python.adicionar_anel()
+        self._x, self._y = self._nova_posicao()
+
+
+class RetornavelComTempo(Tangivel):
+    def __init__(self, *args, nova_posicao: FunctionType, **kwargs) -> NoReturn:
+        super().__init__(*args, **kwargs)
+        self._consumivel = iter(range(300)[::-1])
         self.visivel = False
         self._nova_posicao = nova_posicao
 
     def exibir(self) -> NoReturn:
-        if self.visivel:
-            self._tela.addstr(self._x, self._y, self._character, cor(self._cor))
+        caracter = self._character if self.visivel else ' '
+        self._tela.addstr(self._x, self._y, caracter, cor(self._cor))
         if next(self._consumivel) == 0:
-            self._consumivel = iter(range(randint(40, 60))[::-1])
+            self._consumivel = iter(range(randint(120, 150))[::-1])
             self.visivel = True
 
 
-class Bonus(Retornavel):  # ou Tangivel
+class BonusRemoverAneis(RetornavelComTempo):
     def __init__(self, *args, **kwargs) -> NoReturn:
         super().__init__(*args, '⚡', cor = 'yellow', **kwargs)
 
@@ -178,5 +186,4 @@ class Bonus(Retornavel):  # ou Tangivel
             self.visivel = False
 
 
-# adicionar posições randômicas ao Bonus (ou Retornavel) e adicionar Bonus a
-# classe Mapas ****************
+# com objetos retornaveis agora não precisa mais de vida no tangíveis?

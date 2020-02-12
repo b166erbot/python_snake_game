@@ -7,7 +7,7 @@ from random import choice
 from time import sleep
 from typing import NoReturn, Tuple
 
-from .objetos import Barreira, Comida, Python, Grama, Bonus
+from .objetos import Barreira, Comida, Python, Grama, BonusRemoverAneis
 from .obstaculos import Quadrados
 from .mapas import Mapas
 
@@ -23,11 +23,14 @@ class Jogo:
         self._teclas = [KEY_RIGHT, KEY_LEFT, KEY_UP, KEY_DOWN]
         self._cobra = Python(5, 5, tela, '◯')
         self._itens = Mapas(tela, colunas, linhas).mapa1()
-        args = self.lugar_vazio_aleatorio()
-        self._itens.append(
-            Bonus(*args, tela, nova_posicao = self.lugar_vazio_aleatorio)
-        )
-        self._repor_comida()
+        self._itens.append(BonusRemoverAneis(
+            *self.lugar_vazio_aleatorio(), tela,
+            nova_posicao = self.lugar_vazio_aleatorio
+        ))
+        self._itens.append(Comida(
+            *self.lugar_vazio_aleatorio(), self._tela, '◉',
+            nova_posicao = self.lugar_vazio_aleatorio
+        ))
 
     def _colisoes(self) -> NoReturn:
         # muitas iteracoes, alterar para somente a head verificar a colisao
@@ -37,12 +40,6 @@ class Jogo:
         itens = filter(lambda x: x.colisao(cabeca), chain(self._itens, corpo))
         for tangivel in itens:
             tangivel.efeito(self._cobra, cabeca)
-
-    def _repor_comida(self) -> NoReturn:
-        """Método que repõe a comida caso não haja mais."""
-        if not any(map(lambda x: isinstance(x, Comida), self._itens)):
-            x, y = self.lugar_vazio_aleatorio()
-            self._itens.append(Comida(x, y, self._tela, '◉'))
 
     def lugar_vazio_aleatorio(self) -> Tuple[int]:
         itens = chain(self._itens, self._cobra.corpo)
@@ -62,15 +59,16 @@ class Jogo:
 
     def rodar(self) -> NoReturn:
         """Método que roda todo o jogo."""
-        while self._cobra._vida > 0:
+        while all([self._cobra._vida > 0, list(get_size()) == [80, 24]]):
             tecla = self._tela.getch()
             self._cobra.andar(tecla if tecla in self._teclas else False)
             self._colisoes()
-            self._repor_comida()
             self._atualizar_tela()
             sleep(self._dormir)
         self._tela.erase()
         self._tela.addstr(0, 0, 'Fim.')
+        if list(get_size()) != [80, 24]:
+            self._tela.addstr(1, 0, 'redimensione sua tela para 80 x 24.')
         self._tela.refresh()
         sleep(1.5)
 
@@ -99,11 +97,13 @@ def main():
         curses.endwin()  # volta tudo ao normal.
 
 
-# TODO: comida com tempo
-# TODO: modo imune, quebrar barreiras
-# TODO: modo fantasma, atravessar tantas barreiras
-# TODO: colocar comida ou obstaculo que remove aneis da cobra
-# TODO: criar um gramado estilo xadres
+# TODO: comida com tempo.
+# TODO: modo imune com tempo, (quebrar barreiras?).
+# TODO: modo fantasma com tempo.
+# TODO: criar um gramado estilo xadres.
+# TODO: arrumar o bug ao redimensionar janelas e colocar tamanho mínimo para
+# o jogo rodar.
+# TODO: bonus seta para aumentar a velocidade.
 
 
 # caracteres: ☠▢▣◯◉⚠☢✇☣⚙⚛✧⌬⦗⦘⚡☀☁☃❄❆❅☽☾✗✘✓✔ⓞ☉☄★☆▤▥▦⬚▧▨▩♺⎔⎕⏣⌗⥢⥣⥤⥥⟁◎❖✵◯∗⌌⌍⌎⌏

@@ -13,5 +13,10 @@ Este é mais um jogo da cobra feito somente por diversão e aprendizado.
 
 ##### Todo:
 
-  - [ ] Colocar cor na cobra.
-  - [ ] Colocar fazes com mapas diferenciados.
+  - [x] Colocar cor na cobra.
+  - [x] Colocar fazes com mapas diferenciados.
+  - [x] Bonus que remove aneis.
+  - [ ] Bonus que acelera a velocidade temporariamente.
+  - [ ] Comida bonus com tempo.
+  - [ ] Modo imune com tempo (quebrar barreiras?).
+  - [ ] Modo fantasma com tempo, atravessar barreiras.

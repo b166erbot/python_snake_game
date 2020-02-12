@@ -29,6 +29,7 @@ class Mapas:
         portal1, portal2 = Portal(6, 20, tela), Portal(18, 60, tela)
         portal1.conectar_portais(portal2)
         itens += [portal1, portal2]
-        itens += Gramado(4, 20, 16, 35, tela).criar()
-        itens += Gramado(5, 10, 4, 27, tela).criar()
+        itens += Gramado(4, 20, 16, 35, tela).espacado()
+        itens += Gramado(5, 10, 4, 27, tela).preenchido()
+        itens += Gramado(10, 7, 2, 65, tela).xadres()
         return itens
